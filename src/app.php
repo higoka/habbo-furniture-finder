@@ -15,18 +15,40 @@ $query = $pdo->prepare('SELECT id FROM items_base WHERE item_name = ? LIMIT 1');
 
 $xml = simplexml_load_file('resource/furnidata.xml');
 
-$missing = null;
+$roomItems = null;
+$wallItems = null;
 
-foreach ($xml->xpath('//furnitype') as $item) {
-    $query->execute([ (string) $item->attributes()->classname ]);
+# roomitemtypes
+foreach ($xml->xpath('//roomitemtypes/furnitype') as $item) {
+    $query->execute([ $item->attributes()->classname ]);
 
     if ($query->rowCount() === 1) {
         continue;
     }
 
     echo "missing: {$item->attributes()->classname}\n";
-    $missing .= "{$item->asXML()}\n";
+    $roomItems .= "{$item->asXML()}";
 }
+
+# wallitemtypes
+foreach ($xml->xpath('//wallitemtypes/furnitype') as $item) {
+    $query->execute([ $item->attributes()->classname ]);
+
+    if ($query->rowCount() === 1) {
+        continue;
+    }
+
+    echo "missing: {$item->attributes()->classname}\n";
+    $wallItems .= "{$item->asXML()}";
+}
+
+$missing = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<furnidata>
+  <roomitemtypes>{$roomItems}</roomitemtypes>
+  <wallitemtypes>{$wallItems}</wallitemtypes>
+</furnidata>
+EOT;
 
 file_put_contents('resource/missing.xml', $missing);
 
