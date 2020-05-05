@@ -11,7 +11,7 @@ $pdo = new PDO("mysql:host={$config['hostname']};dbname={$config['database']}", 
     PDO::ATTR_EMULATE_PREPARES => false,
 ]);
 
-$query = $pdo->prepare('SELECT id FROM items_base WHERE item_name = ? LIMIT 1');
+$query = $pdo->prepare('SELECT id FROM items_base WHERE public_name = ? LIMIT 1');
 
 $xml = simplexml_load_file('resource/furnidata.xml');
 
